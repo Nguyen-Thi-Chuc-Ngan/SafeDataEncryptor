@@ -1,4 +1,5 @@
 import view.*;
+import view.custom.Theme;
 
 import javax.swing.*;
 
@@ -22,16 +23,22 @@ public class GUI {
         tabbedPane = new JTabbedPane();
 
         // Thêm các tab, mỗi tab là một lớp riêng
-        tabbedPane.addTab("Mã hóa đối xứng", new SymmetricEncryptionPanel());
-        tabbedPane.addTab("Mã hóa bất đối xứng", new AsymmetricEncryptionPanel());
-        tabbedPane.addTab("Chữ ký điện tử", new DigitalSignaturePanel());
-        tabbedPane.addTab("Hướng dẫn sử dụng", new InstructionsForUse());
-        tabbedPane.addTab("Thông tin", new CreatorInformation());
+        tabbedPane.addTab("Symmetric", new SymmetricEncryptionPanel());
+        tabbedPane.addTab("Classical Symmetric", new ClassicalSymmetricEncryptionPanel());  // Tab mới cho các thuật toán mã hóa cổ điển
+        tabbedPane.addTab("Asymmetric", new AsymmetricEncryptionPanel());
+        tabbedPane.addTab("Hash", new HashPanel());
+        tabbedPane.addTab("Digital Signature", new DigitalSignaturePanel());
+        tabbedPane.addTab("Instructions For Use", new InstructionsForUse());
+        tabbedPane.addTab("Creator Information", new CreatorInformation());
 
         frame.add(tabbedPane);
     }
 
     public static void main(String[] args) {
-        new GUI();
+        Theme theme = new Theme();
+        theme.setup();
+
+        // Khởi động GUI
+        SwingUtilities.invokeLater(() -> new GUI());
     }
 }

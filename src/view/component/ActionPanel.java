@@ -1,4 +1,4 @@
-package component.AsymmetricEncryption;
+package view.component;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,8 +12,8 @@ public class ActionPanel extends JPanel {
     public ActionPanel() {
         setLayout(new FlowLayout(FlowLayout.CENTER, 20, 10));
 
-        encryptButton = new JButton("Mã hóa");
-        decryptButton = new JButton("Giải mã");
+        encryptButton = new JButton("Encrypt");
+        decryptButton = new JButton("Decrypt");
 
         // Cài đặt màu sắc cho các nút
         encryptButton.setBackground(new Color(0, 128, 0));

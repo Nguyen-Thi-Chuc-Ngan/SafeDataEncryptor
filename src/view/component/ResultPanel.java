@@ -1,4 +1,4 @@
-package component.AsymmetricEncryption;
+package view.component;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -10,26 +10,32 @@ public class ResultPanel extends JPanel {
     private JTextArea decryptResultTextArea;
 
     public ResultPanel() {
-        setLayout(new GridLayout(2, 1, 10, 10));
-        setBorder(new TitledBorder("Kết quả"));
+        // Sử dụng BorderLayout thay vì GridLayout
+        setLayout(new BorderLayout(10, 10));
+        setBorder(new TitledBorder("Result"));
 
-        encryptResultTextArea = new JTextArea(4, 30);
+        encryptResultTextArea = new JTextArea(10, 30);
         encryptResultTextArea.setLineWrap(true);
         encryptResultTextArea.setWrapStyleWord(true);
         encryptResultTextArea.setEditable(false);
         encryptResultTextArea.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true));
 
-        decryptResultTextArea = new JTextArea(4, 30);
+        decryptResultTextArea = new JTextArea(10, 30);
         decryptResultTextArea.setLineWrap(true);
         decryptResultTextArea.setWrapStyleWord(true);
         decryptResultTextArea.setEditable(false);
         decryptResultTextArea.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true));
 
-        JPanel encryptResultPanel = createTextAreaPanel("Mã hóa", encryptResultTextArea);
-        JPanel decryptResultPanel = createTextAreaPanel("Giải mã", decryptResultTextArea);
+        JPanel encryptResultPanel = createTextAreaPanel("Encryption", encryptResultTextArea);
+        JPanel decryptResultPanel = createTextAreaPanel("Decryption", decryptResultTextArea);
 
-        add(encryptResultPanel);
-        add(decryptResultPanel);
+        // Tạo một JSplitPane để chia phần trên và dưới
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, encryptResultPanel, decryptResultPanel);
+        splitPane.setDividerLocation(0.5); // Chia đều giữa phần trên và dưới
+        splitPane.setResizeWeight(0.5);    // Cân bằng giữa các panel khi thay đổi kích thước
+
+        // Đặt JSplitPane vào vị trí CENTER của BorderLayout
+        add(splitPane, BorderLayout.CENTER);
     }
 
     private JPanel createTextAreaPanel(String title, JTextArea textArea) {

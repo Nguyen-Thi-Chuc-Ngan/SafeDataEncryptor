@@ -1,9 +1,9 @@
 package view;
 
-import component.AsymmetricEncryption.ActionPanel;
-import component.AsymmetricEncryption.InputPanel;
-import component.AsymmetricEncryption.ResultPanel;
-import component.AsymmetricEncryption.AlgorithmPanel;
+import view.component.ActionPanel;
+import view.component.InputPanel;
+import view.component.ResultPanel;
+import view.component.AsymmetricEncryption.AlgorithmPanel;
 
 import javax.swing.*;
 import java.awt.*;

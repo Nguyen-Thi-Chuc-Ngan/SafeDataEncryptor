@@ -1,4 +1,4 @@
-package component.AsymmetricEncryption;
+package view.component.AsymmetricEncryption;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +19,7 @@ public class AlgorithmPanel extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Panel chứa Thuật toán và Độ dài khóa trên cùng một hàng
+        // Panel containing Algorithm and Key Size on the same row
         JPanel algorithmAndKeyLengthPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 10));
         JLabel algorithmLabel = new JLabel("Algorithm:");
         algorithmComboBox = new JComboBox<>(new String[]{"RSA", "DSA", "ElGamal"});
@@ -31,7 +31,7 @@ public class AlgorithmPanel extends JPanel {
 
         algorithmComboBox.setPreferredSize(new Dimension(200, 30));
 
-        // Chế độ và Padding selectors
+        // Mode and Padding selectors
         JLabel modeLabel = new JLabel("Mode:");
         modeComboBox = new JComboBox<>(new String[]{"ECB", "CBC", "CFB", "OFB"});
         modeComboBox.setPreferredSize(new Dimension(150, 30));
@@ -40,25 +40,25 @@ public class AlgorithmPanel extends JPanel {
         paddingComboBox = new JComboBox<>(new String[]{"PKCS1Padding", "OAEPWithSHA-256AndMGF1Padding", "NoPadding"});
         paddingComboBox.setPreferredSize(new Dimension(250, 30));
 
-        // Thêm một JLabel với icon "i" (thông tin)
+        // Adding a JLabel with an "i" (information) icon
         ImageIcon infoIcon = new ImageIcon(getClass().getResource("/image/information.png"));
         Image img = infoIcon.getImage();
         Image resizedImg = img.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
         ImageIcon resizedIcon = new ImageIcon(resizedImg);
 
         JLabel keyInstructionLabel = new JLabel(resizedIcon);
-        keyInstructionLabel.setToolTipText("Bạn có thể nhập khóa ở đây nếu muốn.");
+        keyInstructionLabel.setToolTipText("You can enter the key here if desired.");
 
         keyInstructionLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 JOptionPane.showMessageDialog(AlgorithmPanel.this,
-                        "Bạn có thể nhập khóa ở đây nếu muốn. Nếu không, hãy click nút tạo key khóa sẽ được tạo tự động.",
-                        "Hướng dẫn nhập khóa", JOptionPane.INFORMATION_MESSAGE);
+                        "You can enter the key here if desired. Otherwise, click the generate key button to create it automatically.",
+                        "Key Entry Instructions", JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
-        // Thêm các thành phần vào panel
+        // Adding components to the panel
         algorithmAndKeyLengthPanel.add(algorithmLabel);
         algorithmAndKeyLengthPanel.add(algorithmComboBox);
         algorithmAndKeyLengthPanel.add(keyLengthLabel);
@@ -69,22 +69,22 @@ public class AlgorithmPanel extends JPanel {
         algorithmAndKeyLengthPanel.add(paddingComboBox);
         algorithmAndKeyLengthPanel.add(keyInstructionLabel);
 
-        // Panel chứa Khóa công khai và Khóa riêng tư nằm cùng một hàng
+        // Panel containing Public Key and Private Key on the same row
         JPanel keyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         keyPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 
-        JLabel publicKeyLabel = new JLabel("Khóa công khai:");
+        JLabel publicKeyLabel = new JLabel("Public Key:");
         publicKeyField = new JTextField(40);
         publicKeyField.setEditable(true);
         publicKeyField.setPreferredSize(new Dimension(500, 30));
 
-        JLabel privateKeyLabel = new JLabel("Khóa riêng tư:");
+        JLabel privateKeyLabel = new JLabel("Private Key:");
         privateKeyField = new JTextField(40);
         privateKeyField.setEditable(true);
         privateKeyField.setPreferredSize(new Dimension(500, 30));
 
-        // Nút Tạo Khóa
-        JButton generateKeysButton = new JButton("Tạo khóa");
+        // Generate Keys button
+        JButton generateKeysButton = new JButton("Generate Keys");
         generateKeysButton.setFont(new Font("Arial", Font.BOLD, 14));
         generateKeysButton.setBackground(new Color(0, 123, 255));
         generateKeysButton.setForeground(Color.WHITE);
@@ -97,18 +97,18 @@ public class AlgorithmPanel extends JPanel {
             }
         });
 
-        // Thêm KeyListener cho publicKeyField và privateKeyField
+        // Adding KeyListener for publicKeyField and privateKeyField
         publicKeyField.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyTyped(java.awt.event.KeyEvent e) {
                 if (!publicKeyField.isEditable()) {
-                    e.consume(); // Ngừng hành động khi người dùng cố gắng nhập vào
+                    e.consume(); // Stop action when user tries to input
                     JOptionPane optionPane = new JOptionPane(
-                            "Khóa công khai không thể chỉnh sửa sau khi tạo.",
+                            "Public key cannot be edited after creation.",
                             JOptionPane.WARNING_MESSAGE);
-                    JDialog dialog = optionPane.createDialog(AlgorithmPanel.this, "Cảnh báo");
-                    dialog.setLocationRelativeTo(AlgorithmPanel.this); // Đặt vị trí thông báo ở giữa màn hình
-                    dialog.setVisible(true); // Hiển thị thông báo
+                    JDialog dialog = optionPane.createDialog(AlgorithmPanel.this, "Warning");
+                    dialog.setLocationRelativeTo(AlgorithmPanel.this); // Set dialog position to center of screen
+                    dialog.setVisible(true); // Display dialog
                 }
             }
         });
@@ -116,18 +116,16 @@ public class AlgorithmPanel extends JPanel {
             @Override
             public void keyTyped(java.awt.event.KeyEvent e) {
                 if (!privateKeyField.isEditable()) {
-                    e.consume(); // Ngừng hành động khi người dùng cố gắng nhập vào
+                    e.consume(); // Stop action when user tries to input
                     JOptionPane optionPane = new JOptionPane(
-                            "Khóa riêng tư không thể chỉnh sửa sau khi tạo.",
+                            "Private key cannot be edited after creation.",
                             JOptionPane.WARNING_MESSAGE);
-                    JDialog dialog = optionPane.createDialog(AlgorithmPanel.this, "Cảnh báo");
-                    dialog.setLocationRelativeTo(AlgorithmPanel.this); // Đặt vị trí thông báo ở giữa màn hình
-                    dialog.setVisible(true); // Hiển thị thông báo
+                    JDialog dialog = optionPane.createDialog(AlgorithmPanel.this, "Warning");
+                    dialog.setLocationRelativeTo(AlgorithmPanel.this); // Set dialog position to center of screen
+                    dialog.setVisible(true); // Display dialog
                 }
             }
         });
-
-
 
         keyPanel.add(publicKeyLabel);
         keyPanel.add(publicKeyField);
@@ -135,15 +133,15 @@ public class AlgorithmPanel extends JPanel {
         keyPanel.add(privateKeyField);
         keyPanel.add(generateKeysButton);
 
-        // Thêm các panel con vào panel chính
+        // Add sub-panels to main panel
         add(algorithmAndKeyLengthPanel);
         add(keyPanel);
     }
 
     public void generateKeys() {
-        // Giả lập chức năng tạo khóa
-        String publicKey = "Công khai: ABC123XYZ";
-        String privateKey = "Riêng tư: XYZ123ABC";
+        // Simulating key generation functionality
+        String publicKey = "Public: ABC123XYZ";
+        String privateKey = "Private: XYZ123ABC";
 
         publicKeyField.setText(publicKey);
         privateKeyField.setText(privateKey);
