@@ -7,49 +7,65 @@ import view.component.classical.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class ClassicalSymmetricEncryptionPanel extends JPanel {
 
     private JComboBox<String> algorithmComboBox;
     private JPanel algorithmPanel;
     private JComboBox<String> languageComboBox;
-    private JButton genKeyButton;  // Nút Gen Key
+    private JComboBox<String> alphabetComboBox;
+    private JButton genKeyButton;
+    private HillCipherPanel hillCipherPanel;
+    private AffineCipherPanel affineCipherPanel;
 
     public ClassicalSymmetricEncryptionPanel() {
         setLayout(new BorderLayout(10, 10));
 
         JPanel comboPanel = new JPanel();
-        comboPanel.setLayout(new BorderLayout());  // Sắp xếp theo chiều ngang
+        comboPanel.setLayout(new BorderLayout());
 
-        // Panel cho các lựa chọn thuật toán và ngôn ngữ
         JPanel selectionPanel = new JPanel();
         selectionPanel.setLayout(new BoxLayout(selectionPanel, BoxLayout.Y_AXIS));
-        selectionPanel.setPreferredSize( new Dimension(590, 150));
+        selectionPanel.setPreferredSize(new Dimension(590, 150));
 
         selectionPanel.add(createAlgorithmSelectionPanel());
         selectionPanel.add(createLanguageSelectionPanel());
+        selectionPanel.add(createAlphabetSelectionPanel());
 
-        // Tạo nút Gen Key
         genKeyButton = new JButton("Generate");
         genKeyButton.setPreferredSize(new Dimension(120, 40));
         selectionPanel.add(genKeyButton);
-
-        // Đường phân cách
+        // Tạo đường phân cách ngang sử dụng JSeparator
         JPanel separator = new JPanel();
-        separator.setPreferredSize(new Dimension(1, 150));
-        separator.setBackground(Color.GRAY);
+        separator.setLayout(new BorderLayout());
+        JSeparator verticalSeparator = new JSeparator(SwingConstants.VERTICAL);  // Đường phân cách ngang
 
-        // Tạo panel cho nội dung thay đổi theo thuật toán
+        // Đặt đường phân cách vào JPanel
+        separator.add(verticalSeparator, BorderLayout.CENTER);
+
+        // Đặt chiều cao cho separator ngang
+        separator.setPreferredSize(new Dimension(3, 10)); // Đặt chiều cao cho đường phân cách ngang
+
         algorithmPanel = new JPanel();
         algorithmPanel.setLayout(new BoxLayout(algorithmPanel, BoxLayout.Y_AXIS));
+        algorithmPanel.setPreferredSize(new Dimension(590, 200));
 
-        // Đảm bảo algorithmPanel có kích thước cố định
-        algorithmPanel.setPreferredSize(new Dimension(590, 200));  // Đặt kích thước cho algorithmPanel
+        // Thêm đường phân cách ngang
+        JPanel horizontalSeparatorPanel = new JPanel();
+        horizontalSeparatorPanel.setLayout(new BorderLayout());
+        JSeparator horizontalSeparator = new JSeparator(SwingConstants.HORIZONTAL);
+        horizontalSeparatorPanel.add(horizontalSeparator, BorderLayout.CENTER);
+        // Đảm bảo đường phân cách có màu sắc
+        horizontalSeparator.setBackground(Color.GRAY);
+        horizontalSeparator.setForeground(Color.GRAY);
+
         comboPanel.add(selectionPanel, BorderLayout.WEST);
         comboPanel.add(separator, BorderLayout.CENTER);
         comboPanel.add(algorithmPanel, BorderLayout.EAST);
+        comboPanel.add(horizontalSeparatorPanel, BorderLayout.SOUTH);
 
-        // Các panel phụ
         InputPanel inputPanel = new InputPanel();
         ResultPanel resultPanel = new ResultPanel();
         ActionPanel actionPanel = new ActionPanel();
@@ -58,79 +74,128 @@ public class ClassicalSymmetricEncryptionPanel extends JPanel {
         splitPane.setDividerLocation(0.5);
         splitPane.setResizeWeight(0.5);
 
-        // Thêm các thành phần vào giao diện theo thứ tự từ trên xuống
-        add(comboPanel, BorderLayout.NORTH); // Thuật toán và ngôn ngữ
-        add(splitPane, BorderLayout.CENTER); // Panel chia đôi nội dung
-        add(actionPanel, BorderLayout.SOUTH); // Panel hành động
 
-        updatePanel(); // Cập nhật panel ban đầu
+        // Chắc chắn rằng comboPanel, horizontalSeparatorPanel và splitPane được thêm đúng cách
+        add(comboPanel, BorderLayout.NORTH);  // Đặt comboPanel ở trên cùn
+        add(splitPane, BorderLayout.CENTER);  // Đặt splitPane ở trung tâm để nó chiếm hết không gian còn lại
+        add(actionPanel, BorderLayout.SOUTH);  // Đặt actionPanel ở dưới cùng
 
-        // Lắng nghe sự kiện thay đổi thuật toán
+        updatePanel();
         algorithmComboBox.addActionListener(e -> updatePanel());
+
+        genKeyButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedAlgorithm = (String) algorithmComboBox.getSelectedItem();
+
+                switch (selectedAlgorithm) {
+                    case "Hill":
+                        if (hillCipherPanel != null) {
+                            System.out.println("Generating key...");
+                            hillCipherPanel.genKey();
+                        }
+                        break;
+                    case "Affine":
+                        System.out.println("Generating key for Affine Cipher...");
+                        if (affineCipherPanel != null) {
+
+                            affineCipherPanel.generateKeys();
+                        }
+                        break;
+                }
+            }
+        });
+        actionPanel.addEncryptListener(e -> encryptText(inputPanel, resultPanel));
+        actionPanel.addDecryptListener(e -> decryptText(resultPanel));
     }
+
+    private JPanel createAlphabetSelectionPanel() {
+        String[] alphabets = {
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                "ZABCDEFGHIJKLMNOPQRSTUVWXY",
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ_",
+                "_ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        };
+        alphabetComboBox = createComboBox(alphabets);
+
+        JPanel alphabetPanel = new JPanel();
+        alphabetPanel.setLayout(new BoxLayout(alphabetPanel, BoxLayout.X_AXIS));
+        alphabetPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
+        alphabetPanel.add(new JLabel("Alphabet:"));
+        alphabetPanel.add(Box.createHorizontalStrut(15));
+        alphabetPanel.add(alphabetComboBox);
+
+        return alphabetPanel;
+    }
+    private HillCipherPanel findHillCipherPanel() {
+        for (Component comp : algorithmPanel.getComponents()) {
+            if (comp instanceof HillCipherPanel) {
+                return (HillCipherPanel) comp;
+            }
+        }
+        return null;
+    }
+
+    private AffineCipherPanel findAffineCipherPanel() {
+        for (Component comp : algorithmPanel.getComponents()) {
+            if (comp instanceof AffineCipherPanel) {
+                return (AffineCipherPanel) comp;
+            }
+        }
+        return null;
+    }
+
 
     private JPanel createAlgorithmSelectionPanel() {
         String[] algorithms = {"Hill", "Substitution", "Vigence", "Affine", "Transposition"};
-        algorithmComboBox = createComboBox(algorithms);
+        algorithmComboBox = createComboBox(algorithms); // Lưu giá trị trả về vào algorithmComboBox
 
-        // Sử dụng BoxLayout để kiểm soát bố cục
         JPanel algorithmPanel = new JPanel();
-        algorithmPanel.setLayout(new BoxLayout(algorithmPanel, BoxLayout.X_AXIS));  // Chỉnh bố cục ngang
+        algorithmPanel.setLayout(new BoxLayout(algorithmPanel, BoxLayout.X_AXIS));
         algorithmPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Thêm các thành phần vào panel
         algorithmPanel.add(new JLabel("Algorithm:"));
-        algorithmPanel.add(Box.createHorizontalStrut(10)); // Khoảng cách giữa label và comboBox
+        algorithmPanel.add(Box.createHorizontalStrut(10));
         algorithmPanel.add(algorithmComboBox);
 
-        // Đặt kích thước mong muốn cho algorithmPanel
-        algorithmPanel.setPreferredSize(new Dimension(590, 40)); // Điều chỉnh chiều cao cho phù hợp
-
-        // Đảm bảo layout của panel được cập nhật
         algorithmPanel.revalidate();
         algorithmPanel.repaint();
 
         return algorithmPanel;
     }
 
-
     private JPanel createLanguageSelectionPanel() {
-        String[] languages = {"English", "Tiếng Việt"};
+        String[] languages = {"English", "Vietnamese"};
         languageComboBox = createComboBox(languages);
 
-        // Sử dụng BoxLayout để dễ dàng kiểm soát kích thước
         JPanel languagePanel = new JPanel();
         languagePanel.setLayout(new BoxLayout(languagePanel, BoxLayout.X_AXIS));
-        languagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        languagePanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
         languagePanel.add(new JLabel("Language:"));
         languagePanel.add(Box.createHorizontalStrut(10));
         languagePanel.add(languageComboBox);
 
-        // Cập nhật kích thước panel
-        languagePanel.setPreferredSize(new Dimension(590, 40));
-
-        // Đảm bảo layout của panel cha được cập nhật
         languagePanel.revalidate();
         languagePanel.repaint();
 
         return languagePanel;
     }
 
-
     private JComboBox<String> createComboBox(String[] items) {
         JComboBox<String> comboBox = new JComboBox<>(items);
-        comboBox.setPreferredSize(new Dimension(150, 30));
+        comboBox.setPreferredSize(new Dimension(150, 25));
         return comboBox;
     }
 
     private void updatePanel() {
         String selectedAlgorithm = (String) algorithmComboBox.getSelectedItem();
-        algorithmPanel.removeAll(); // Xóa các thành phần cũ trong panel
+        algorithmPanel.removeAll();   // Xóa các thành phần cũ
 
-        // Thêm các trường nhập liệu khác nhau dựa trên thuật toán đã chọn
+        // Tạo một đối tượng HillCipherPanel mới mỗi khi thuật toán được thay đổi
         switch (selectedAlgorithm) {
             case "Hill":
-                algorithmPanel.add(new HillCipherPanel());
+                hillCipherPanel = new HillCipherPanel();  // Khởi tạo HillCipherPanel
+                algorithmPanel.add(hillCipherPanel);  // Thêm vào giao diện
                 break;
             case "Substitution":
                 algorithmPanel.add(new SubstitutionCipherPanel());
@@ -139,14 +204,186 @@ public class ClassicalSymmetricEncryptionPanel extends JPanel {
                 algorithmPanel.add(new VigeneceCipherPanel());
                 break;
             case "Affine":
-                algorithmPanel.add(new AffineCipherPanel());
+                affineCipherPanel = new AffineCipherPanel();  // Khởi tạo AffineCipherPanel
+                algorithmPanel.add(affineCipherPanel);
                 break;
             case "Transposition":
                 algorithmPanel.add(new TranspositionCipherPanel());
                 break;
         }
 
-        algorithmPanel.revalidate(); // Cập nhật lại layout của panel
-        algorithmPanel.repaint(); // Vẽ lại panel
+        algorithmPanel.revalidate();
+        algorithmPanel.repaint();  // Cập nhật lại giao diện
+
+        // Cập nhật lại bảng chữ cái khi thay đổi thuật toán
+        updateAlphabetSelectionPanel(selectedAlgorithm);
+    }
+
+    private void updateAlphabetSelectionPanel(String selectedAlgorithm) {
+        // Cập nhật lại bảng chữ cái nếu cần thiết
+        String[] alphabets;
+        switch (selectedAlgorithm) {
+            case "Substitution":
+                alphabets = new String[]{"ABCDEFGHIJKLMNOPQRSTUVWXYZ", "ZABCDEFGHIJKLMNOPQRSTUVWXY", "ABCDEFGHIJKLMNOPQRSTUVWXYZ_", "_ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
+                break;
+            case "Vigence":
+                alphabets = new String[]{"ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"};
+                break;
+            case "Affine":
+                alphabets = new String[]{"ABCDEFGHIJKLMNOPQRSTUVWXYZ", "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"};
+                break;
+            case "Transposition":
+                alphabets = new String[]{"ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ_123456"};
+                break;
+            default:
+                alphabets = new String[]{"ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                        "ZABCDEFGHIJKLMNOPQRSTUVWXY",
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ_",
+                        "_ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
+
+                break;
+        }
+        // Cập nhật danh sách lựa chọn bảng chữ cái trong ComboBox
+        alphabetComboBox.setModel(new DefaultComboBoxModel<>(alphabets));
+
+        // Nếu thuật toán là Hill Cipher, vô hiệu hóa combobox
+        if ("Hill".equals(selectedAlgorithm)) {
+            alphabetComboBox.setEnabled(false);
+            alphabetComboBox.setSelectedItem("ABCDEFGHIJKLMNOPQRSTUVWXYZ");  // Đặt giá trị mặc định là "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        } else {
+            alphabetComboBox.setEnabled(true);
+        }
+    }
+
+    private void encryptText(InputPanel inputPanel, ResultPanel resultPanel) {
+        String text = inputPanel.getTextArea().getText();
+        if (text.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter text to encrypt.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String selectedLanguage = (String) languageComboBox.getSelectedItem();
+        String selectedAlphabet = (String) alphabetComboBox.getSelectedItem();
+        String selectedAlgorithm = (String) algorithmComboBox.getSelectedItem();  // Lấy thuật toán chọn từ ComboBox
+
+        // Xử lý văn bản trước khi mã hóa (chuyển sang chữ hoa và loại bỏ dấu cách)
+        String formattedText = text.toUpperCase().replaceAll(" ", "");
+
+        // Xử lý mã hóa tùy theo thuật toán đã chọn
+        String encryptedText = "";
+        switch (selectedAlgorithm) {
+//            case "Substitution":
+//                encryptedText = substitutionEncrypt(formattedText, selectedAlphabet);
+//                break;
+//            case "Vigenère":
+//                encryptedText = vigenereEncrypt(formattedText, selectedAlphabet);
+//                break;
+            case "Affine":
+                AffineCipherPanel affineCipherPanel = findAffineCipherPanel();
+                if(affineCipherPanel!= null) {
+                    encryptedText = affineCipherPanel.encrypt(formattedText, selectedAlphabet);
+                }
+                else {
+                    JOptionPane.showMessageDialog(this, "Please generate the key first.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                break;
+//            case "Transposition":
+//                encryptedText = transpositionEncrypt(formattedText, selectedAlphabet);
+//                break;
+            case "Hill":
+                // Tìm HillCipherPanel trong algorithmPanel
+                HillCipherPanel hillCipherPanel = findHillCipherPanel();
+                if (hillCipherPanel != null && hillCipherPanel.isKeyGenerated) {
+                    // Gọi phương thức mã hóa trong HillCipherPanel
+                    encryptedText = hillCipherPanel.encryptText(formattedText, hillCipherPanel.keyMatrix);
+                }
+                else {
+                    JOptionPane.showMessageDialog(this, "Please generate the key first.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                break;
+            default:
+                JOptionPane.showMessageDialog(this, "Unknown algorithm selected.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+        }
+
+        // Hiển thị kết quả mã hóa trong resultPanel
+        resultPanel.getEncryptResultTextArea().setText(encryptedText);
+    }
+
+    private void decryptText(ResultPanel resultPanel) {
+        String encryptedText = resultPanel.getEncryptResultTextArea().getText();
+        System.out.println(encryptedText);
+
+        if (encryptedText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please encrypt text first.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String selectedAlgorithm = (String) algorithmComboBox.getSelectedItem();  // Lấy thuật toán đã chọn từ ComboBox
+        String selectedLanguage = (String) languageComboBox.getSelectedItem();
+        String selectedAlphabet = (String) alphabetComboBox.getSelectedItem();
+        switch (selectedAlgorithm) {
+            case "Affine":
+                AffineCipherPanel affineCipherPanel = findAffineCipherPanel();
+                if (affineCipherPanel != null) {
+                    // Giải mã với thuật toán Affine
+                    String decryptedAffineText = affineCipherPanel.decrypt(encryptedText, selectedAlphabet);
+                    resultPanel.getDecryptResultTextArea().setText(decryptedAffineText);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Please generate the key first.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                break;
+
+            case "Hill":
+                HillCipherPanel hillCipherPanel = findHillCipherPanel();
+                if (hillCipherPanel != null && hillCipherPanel.isKeyGenerated) {
+                    // Giải mã với thuật toán Hill Cipher
+                    String decryptedHillText = hillCipherPanel.decryptText(encryptedText, hillCipherPanel.keyMatrix);
+                    resultPanel.getDecryptResultTextArea().setText(decryptedHillText);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Please generate the key first.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                break;
+
+//            case "Substitution":
+//                // Giải mã với thuật toán Substitution Cipher
+//                SubstitutionCipherPanel substitutionCipherPanel = findSubstitutionCipherPanel();
+//                if (substitutionCipherPanel != null) {
+//                    String decryptedSubstitutionText = substitutionCipherPanel.decrypt(encryptedText);
+//                    resultPanel.getDecryptResultTextArea().setText(decryptedSubstitutionText);
+//                } else {
+//                    JOptionPane.showMessageDialog(this, "Please generate the key first.", "Error", JOptionPane.ERROR_MESSAGE);
+//                }
+//                break;
+//
+//            case "Vigence":
+//                // Giải mã với thuật toán Vigenère Cipher
+//                VigeneceCipherPanel vigeneceCipherPanel = findVigeneceCipherPanel();
+//                if (vigeneceCipherPanel != null) {
+//                    String decryptedVigeneceText = vigeneceCipherPanel.decrypt(encryptedText);
+//                    resultPanel.getDecryptResultTextArea().setText(decryptedVigeneceText);
+//                } else {
+//                    JOptionPane.showMessageDialog(this, "Please generate the key first.", "Error", JOptionPane.ERROR_MESSAGE);
+//                }
+//                break;
+//
+//            case "Transposition":
+//                // Giải mã với thuật toán Transposition Cipher
+//                TranspositionCipherPanel transpositionCipherPanel = findTranspositionCipherPanel();
+//                if (transpositionCipherPanel != null) {
+//                    String decryptedTranspositionText = transpositionCipherPanel.decrypt(encryptedText);
+//                    resultPanel.getDecryptResultTextArea().setText(decryptedTranspositionText);
+//                } else {
+//                    JOptionPane.showMessageDialog(this, "Please generate the key first.", "Error", JOptionPane.ERROR_MESSAGE);
+//                }
+//                break;
+
+            default:
+                JOptionPane.showMessageDialog(this, "Unknown algorithm selected.", "Error", JOptionPane.ERROR_MESSAGE);
+                break;
+        }
     }
 }

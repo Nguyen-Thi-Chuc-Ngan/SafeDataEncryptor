@@ -29,7 +29,7 @@ public class SymmetricEncryptionPanel extends JPanel {
 
         // Add event listeners for the encryption and decryption buttons from ActionPanel
         actionPanel.addEncryptListener(e -> encryptText(inputPanel, resultPanel));
-        actionPanel.addDecryptListener(e -> decryptText(inputPanel, resultPanel));
+        actionPanel.addDecryptListener(e -> decryptText(resultPanel));
     }
 
     private void encryptText(InputPanel inputPanel, ResultPanel resultPanel) {
@@ -43,8 +43,8 @@ public class SymmetricEncryptionPanel extends JPanel {
         resultPanel.getEncryptResultTextArea().setText(encryptedText);
     }
 
-    private void decryptText(InputPanel inputPanel, ResultPanel resultPanel) {
-        String encryptedText = resultPanel.getDecryptResultTextArea().getText();
+    private void decryptText(ResultPanel resultPanel) {
+        String encryptedText = resultPanel.getEncryptResultTextArea().getText();
         if (encryptedText.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please encrypt text first.", "Error", JOptionPane.ERROR_MESSAGE);
             return;

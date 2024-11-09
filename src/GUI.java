@@ -2,6 +2,7 @@ import view.*;
 import view.custom.Theme;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class GUI {
 
@@ -13,6 +14,10 @@ public class GUI {
         frame.setSize(1200, 700);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
+
+//        ImageIcon icon = new ImageIcon("path/to/your/icon.png");
+//        frame.setIconImage(icon.getImage());
 
         init();
 

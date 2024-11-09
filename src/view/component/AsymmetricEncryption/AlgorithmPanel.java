@@ -27,18 +27,18 @@ public class AlgorithmPanel extends JPanel {
 
         String[] keyOptions = {"128", "256", "512", "1024", "2048"};
         keyLengthField = new JComboBox<>(keyOptions);
-        keyLengthField.setPreferredSize(new Dimension(140, 30));
+        keyLengthField.setPreferredSize(new Dimension(140, 40));
 
-        algorithmComboBox.setPreferredSize(new Dimension(200, 30));
+        algorithmComboBox.setPreferredSize(new Dimension(200, 40));
 
         // Mode and Padding selectors
         JLabel modeLabel = new JLabel("Mode:");
         modeComboBox = new JComboBox<>(new String[]{"ECB", "CBC", "CFB", "OFB"});
-        modeComboBox.setPreferredSize(new Dimension(150, 30));
+        modeComboBox.setPreferredSize(new Dimension(150, 40));
 
         JLabel paddingLabel = new JLabel("Padding:");
         paddingComboBox = new JComboBox<>(new String[]{"PKCS1Padding", "OAEPWithSHA-256AndMGF1Padding", "NoPadding"});
-        paddingComboBox.setPreferredSize(new Dimension(250, 30));
+        paddingComboBox.setPreferredSize(new Dimension(250, 40));
 
         // Adding a JLabel with an "i" (information) icon
         ImageIcon infoIcon = new ImageIcon(getClass().getResource("/image/information.png"));
@@ -76,15 +76,15 @@ public class AlgorithmPanel extends JPanel {
         JLabel publicKeyLabel = new JLabel("Public Key:");
         publicKeyField = new JTextField(40);
         publicKeyField.setEditable(true);
-        publicKeyField.setPreferredSize(new Dimension(500, 30));
+        publicKeyField.setPreferredSize(new Dimension(500, 40));
 
         JLabel privateKeyLabel = new JLabel("Private Key:");
         privateKeyField = new JTextField(40);
         privateKeyField.setEditable(true);
-        privateKeyField.setPreferredSize(new Dimension(500, 30));
+        privateKeyField.setPreferredSize(new Dimension(500, 40));
 
         // Generate Keys button
-        JButton generateKeysButton = new JButton("Generate Keys");
+        JButton generateKeysButton = new JButton("Generate");
         generateKeysButton.setFont(new Font("Arial", Font.BOLD, 14));
         generateKeysButton.setBackground(new Color(0, 123, 255));
         generateKeysButton.setForeground(Color.WHITE);

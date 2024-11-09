@@ -4,6 +4,7 @@ import view.component.ActionPanel;
 import view.component.InputPanel;
 import view.component.ResultPanel;
 import view.component.AsymmetricEncryption.AlgorithmPanel;
+import view.component.classical.HillCipherPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,6 +17,8 @@ public class AsymmetricEncryptionPanel extends JPanel {
     private ActionPanel actionPanel;
     private ResultPanel resultPanel;
     private AlgorithmPanel algorithmPanel;
+
+
 
     public AsymmetricEncryptionPanel() {
         setLayout(new BorderLayout(1, 1));
