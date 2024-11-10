@@ -3,8 +3,7 @@ package view;
 import view.component.ActionPanel;
 import view.component.InputPanel;
 import view.component.ResultPanel;
-import view.component.AsymmetricEncryption.AlgorithmPanel;
-import view.component.classical.HillCipherPanel;
+import view.AsymmetricEncryption.AlgorithmPanel;
 
 import javax.swing.*;
 import java.awt.*;

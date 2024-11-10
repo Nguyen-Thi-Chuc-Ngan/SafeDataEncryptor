@@ -1,4 +1,4 @@
-package view.component.AsymmetricEncryption;
+package view.AsymmetricEncryption;
 
 import javax.swing.*;
 import java.awt.*;

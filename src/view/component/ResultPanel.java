@@ -17,7 +17,7 @@ public class ResultPanel extends JPanel {
         encryptResultTextArea = new JTextArea(10, 30);
         encryptResultTextArea.setLineWrap(true);
         encryptResultTextArea.setWrapStyleWord(true);
-        encryptResultTextArea.setEditable(false);
+        encryptResultTextArea.setEditable(true);
         encryptResultTextArea.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true));
 
         decryptResultTextArea = new JTextArea(10, 30);

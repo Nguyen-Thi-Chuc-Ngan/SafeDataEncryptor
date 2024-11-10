@@ -1,9 +1,9 @@
-package view.component.classical;
+package view.classical;
+
+import algorithm.classical.AffineCipher;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Random;
 
 public class AffineCipherPanel extends JPanel {
@@ -56,33 +56,13 @@ public class AffineCipherPanel extends JPanel {
     }
 
     // Mã hóa văn bản theo thuật toán Affine Cipher
-    // Mã hóa văn bản theo thuật toán Affine Cipher
     public String encrypt(String plaintext, String alphabet) {
         try {
             int a = Integer.parseInt(keyAField.getText());
             int b = Integer.parseInt(keyBField.getText());
 
-            // Kiểm tra tính hợp lệ của 'a'
-            if (gcd(a, alphabet.length()) != 1) {
-                JOptionPane.showMessageDialog(this, "'a' must be coprime with the size of the alphabet.", "Invalid Key", JOptionPane.ERROR_MESSAGE);
-                return "";
-            }
-
-            StringBuilder ciphertext = new StringBuilder();
-
-            // Mã hóa từng ký tự
-            for (char c : plaintext.toCharArray()) {
-                if (Character.isLetter(c)) {
-                    int x = alphabet.indexOf(Character.toUpperCase(c)); // Lấy chỉ số của ký tự trong bảng chữ cái
-                    int y = (a * x + b) % alphabet.length(); // Áp dụng công thức mã hóa Affine
-                    char encryptedChar = alphabet.charAt(y); // Lấy ký tự mã hóa
-                    ciphertext.append(encryptedChar);
-                } else {
-                    ciphertext.append(c); // Ký tự không phải chữ cái giữ nguyên
-                }
-            }
-
-            return ciphertext.toString();
+            AffineCipher affineCipher = new AffineCipher(a, b, alphabet);
+            return affineCipher.encrypt(plaintext);
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Invalid input for keys.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -90,38 +70,14 @@ public class AffineCipherPanel extends JPanel {
         }
     }
 
-    // Giải mã văn bản theo thuật toán Affine Cipher
+    // Giải mã văn bản
     public String decrypt(String ciphertext, String alphabet) {
         try {
             int a = Integer.parseInt(keyAField.getText());
             int b = Integer.parseInt(keyBField.getText());
 
-            int alphabetSize = alphabet.length();
-
-            // Kiểm tra tính hợp lệ của 'a'
-            if (gcd(a, alphabetSize) != 1) {
-                JOptionPane.showMessageDialog(this, "'a' must be coprime with the size of the alphabet.", "Invalid Key", JOptionPane.ERROR_MESSAGE);
-                return "";
-            }
-
-            // Tìm nghịch đảo của 'a'
-            int aInverse = modInverse(a, alphabetSize);
-
-            StringBuilder plaintext = new StringBuilder();
-
-            // Giải mã từng ký tự
-            for (char c : ciphertext.toCharArray()) {
-                if (Character.isLetter(c)) {
-                    int y = alphabet.indexOf(Character.toUpperCase(c)); // Lấy chỉ số của ký tự trong bảng chữ cái
-                    int x = (aInverse * (y - b + alphabetSize)) % alphabetSize; // Áp dụng công thức giải mã Affine
-                    char decryptedChar = alphabet.charAt(x); // Lấy ký tự giải mã
-                    plaintext.append(decryptedChar);
-                } else {
-                    plaintext.append(c); // Ký tự không phải chữ cái giữ nguyên
-                }
-            }
-
-            return plaintext.toString();
+            AffineCipher affineCipher = new AffineCipher(a, b, alphabet);
+            return affineCipher.decrypt(ciphertext);
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Invalid input for keys.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -129,21 +85,10 @@ public class AffineCipherPanel extends JPanel {
         }
     }
 
-
     // Tính ước chung lớn nhất (GCD)
     private int gcd(int a, int b) {
         if (b == 0) return a;
         return gcd(b, a % b);
-    }
-
-    // Tìm nghịch đảo của a mod alphabetSize
-    private int modInverse(int a, int m) {
-        for (int x = 1; x < m; x++) {
-            if ((a * x) % m == 1) {
-                return x;
-            }
-        }
-        return -1;  // Nếu không có nghịch đảo
     }
 }
 

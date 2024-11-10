@@ -2,11 +2,10 @@ package view;
 
 import view.component.InputPanel;
 import view.component.ResultPanel;
-import view.component.SymmetricEncryption.KeyOptionsPanel;
+import view.SymmetricEncryption.KeyOptionsPanel;
 import view.component.ActionPanel;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import java.awt.*;
 
 public class SymmetricEncryptionPanel extends JPanel {

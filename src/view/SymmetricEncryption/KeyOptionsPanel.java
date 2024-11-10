@@ -1,4 +1,4 @@
-package view.component.SymmetricEncryption;
+package view.SymmetricEncryption;
 
 import model.ComboBoxValues;
 import strategy.*;
@@ -15,9 +15,10 @@ public class KeyOptionsPanel extends JPanel {
     private JComboBox<String> keyLengthComboBox;
     private JComboBox<String> modeComboBox;
     private JComboBox<String> paddingComboBox;
-    private JButton generateKeyButton;
-    private JTextField keyField;
+    private JButton generateKeyButton, saveKeyButton, loadKeyButton, chooseIvButton;
+    private JTextField keyField, ivField;
     private EncryptionStrategy encryptionStrategy;
+    private String iv = "";
 
     public KeyOptionsPanel() {
         setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
@@ -36,9 +37,17 @@ public class KeyOptionsPanel extends JPanel {
         paddingComboBox.setPreferredSize(new Dimension(160, 40));
 
         generateKeyButton = new JButton("Generate");
+        saveKeyButton = new JButton("Save Key");
+        loadKeyButton = new JButton("Load Key");
+        chooseIvButton = new JButton("Choose IV");
+
         keyField = new JTextField(30);
         keyField.setEditable(true);
         keyField.setPreferredSize(new Dimension(400, 40));
+
+        ivField = new JTextField(30);
+        ivField.setEditable(false);
+        ivField.setPreferredSize(new Dimension(400, 40));
 
         // Default strategy is AES
         encryptionStrategy = new AESStrategy();
@@ -73,6 +82,15 @@ public class KeyOptionsPanel extends JPanel {
             }
         });
 
+        // Save Key button action
+        saveKeyButton.addActionListener(e -> saveKeyToFile());
+
+        // Load Key button action
+        loadKeyButton.addActionListener(e -> loadKeyFromFile());
+
+        // Choose IV button action
+        chooseIvButton.addActionListener(e -> chooseIv());
+        
         // Key input guidance
         ImageIcon infoIcon = new ImageIcon(getClass().getResource("/image/information.png"));
         Image img = infoIcon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
@@ -114,8 +132,21 @@ public class KeyOptionsPanel extends JPanel {
         add(new JLabel("Padding:"));
         add(paddingComboBox);
         add(generateKeyButton);
+        add(saveKeyButton);
+        add(loadKeyButton);
+        add(chooseIvButton);
         add(keyField);
         add(keyInstructionLabel);
+    }
+
+    private void chooseIv() {
+    }
+
+    private void loadKeyFromFile() {
+
+    }
+
+    private void saveKeyToFile() {
     }
 
     private void updateEncryptionStrategy() {

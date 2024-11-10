@@ -1,13 +1,16 @@
-package view.component.classical;
+package view.classical;
+
+import algorithm.classical.HillCipher;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.util.Random;
+import java.security.SecureRandom;
+
+import static algorithm.classical.HillCipher.getMod;
 
 public class HillCipherPanel extends JPanel {
-    private static final int MOD = 26;
 
     private JComboBox<String> matrixSizeComboBox;
     private JPanel matrixPanel;
@@ -16,6 +19,7 @@ public class HillCipherPanel extends JPanel {
     public int[][] keyMatrix;
     String selectedSize;
     public boolean isKeyGenerated = false;
+    String selectedLanguage;
 
     public HillCipherPanel() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -42,9 +46,11 @@ public class HillCipherPanel extends JPanel {
         updateMatrixPanel();
     }
 
+
     // Kiểm tra xem giá trị nhập vào có phải là số hợp lệ không
     private void validateInput(JTextField textField) {
         String text = textField.getText().trim();
+
         try {
             if (!text.isEmpty() && !text.matches("-?\\d+(\\.\\d+)?")) {
                 JOptionPane.showMessageDialog(this,
@@ -84,7 +90,7 @@ public class HillCipherPanel extends JPanel {
             }
         }
 
-        if (valid) {
+        if (valid && isValidKeyMatrix(keyMatrix, selectedLanguage)) {
             isKeyGenerated = true;
             errorLabel.setText("");
         } else {
@@ -93,49 +99,29 @@ public class HillCipherPanel extends JPanel {
         }
     }
 
-    // Cập nhật giao diện bảng ma trận khi kích thước ma trận thay đổi
     public void updateMatrixPanel() {
         selectedSize = (String) matrixSizeComboBox.getSelectedItem();
-        int rows = 0, cols = 0;
-
-        switch (selectedSize) {
-            case "2x2":
-                rows = 2;
-                cols = 2;
-                break;
-            case "3x3":
-                rows = 3;
-                cols = 3;
-                break;
-            case "4x4":
-                rows = 4;
-                cols = 4;
-                break;
-        }
-
-        keyMatrix = new int[rows][cols];
+        int size = Integer.parseInt(selectedSize.substring(0, 1));
+        keyMatrix = new int[size][size];
 
         matrixPanel.removeAll();
-        matrixPanel.setLayout(new GridLayout(rows, cols));
+        matrixPanel.setLayout(new GridLayout(size, size));
 
-        matrixFields = new JTextField[rows][cols];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
+        matrixFields = new JTextField[size][size];
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
                 JTextField textField = new JTextField(5);
                 textField.setHorizontalAlignment(JTextField.CENTER);
                 matrixFields[i][j] = textField;
                 textField.getDocument().addDocumentListener(new DocumentListener() {
-                    @Override
                     public void insertUpdate(DocumentEvent e) {
                         validateInput(textField);
                     }
 
-                    @Override
                     public void removeUpdate(DocumentEvent e) {
                         validateInput(textField);
                     }
 
-                    @Override
                     public void changedUpdate(DocumentEvent e) {
                         validateInput(textField);
                     }
@@ -149,8 +135,10 @@ public class HillCipherPanel extends JPanel {
     }
 
     // Tạo ma trận khóa ngẫu nhiên
-    public void genKey() {
+    public void genKey(String selectedLanguage) {
         int rows = 0, cols = 0;
+
+        this.selectedLanguage = selectedLanguage;
 
         switch (selectedSize) {
             case "2x2":
@@ -168,133 +156,79 @@ public class HillCipherPanel extends JPanel {
         }
 
         keyMatrix = new int[rows][cols];
-        Random random = new Random();
+        SecureRandom random = new SecureRandom();
+        do {
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < cols; j++) {
 
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                keyMatrix[i][j] = random.nextInt(26);
-                matrixFields[i][j].setText(String.valueOf(keyMatrix[i][j]));
+                    keyMatrix[i][j] = random.nextInt(getMod(selectedLanguage));
+                    matrixFields[i][j].setText(String.valueOf(keyMatrix[i][j]));
+                }
             }
-        }
+        } while (!isValidKeyMatrix(keyMatrix, selectedLanguage));
 
         isKeyGenerated = true;
     }
 
-    public static String encryptText(String plaintext, int[][] key) {
-        plaintext = plaintext.toUpperCase().replaceAll(" ", "");
-        int n = key.length;
-        int padding = n - plaintext.length() % n;
-        if (padding != n) {
-            plaintext += "X".repeat(padding);
-        }
-
-        StringBuilder ciphertext = new StringBuilder();
-        for (int i = 0; i < plaintext.length(); i += n) {
-            int[] block = new int[n];
-            for (int j = 0; j < n; j++) {
-                block[j] = plaintext.charAt(i + j) - 'A';
-            }
-            int[] encryptedBlock = multiplyMatrix(key, block);
-            for (int value : encryptedBlock) {
-                ciphertext.append((char) (value + 'A'));
-            }
-        }
-        return ciphertext.toString();
+    private boolean isValidKeyMatrix(int[][] matrix, String selectedLanguage) {
+        int det = determinant(matrix, selectedLanguage) % getMod(selectedLanguage);
+        if (det < 0) det += getMod(selectedLanguage);
+        // Kiểm tra gcd(det, MOD) để đảm bảo có nghịch đảo
+        return gcd(det, getMod(selectedLanguage)) == 1;
     }
 
-    public static String decryptText(String ciphertext, int[][] key) {
-        int determinant = determinant(key);
-        int adjoint[][] = adjoint(key);
-        int n = key.length;
-        int[][] inverseKey = new int[n][n];
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                inverseKey[i][j] = (adjoint[i][j] * determinant) % MOD;
-                if (inverseKey[i][j] < 0) {
-                    inverseKey[i][j] += MOD;
-                }
-            }
-        }
-        return encryptText(ciphertext, inverseKey);
+    private static int gcd(int a, int b) {
+        return b == 0 ? a : gcd(b, a % b);
     }
 
-    private static int[] multiplyMatrix(int[][] key, int[] block) {
+    private static int[] multiplyMatrix(int[][] key, int[] block, String selectedLanguage) {
         int n = key.length;
+        int mod = getMod(selectedLanguage);  // Lấy giá trị modulo dựa trên ngôn ngữ
         int[] result = new int[n];
         for (int i = 0; i < n; i++) {
+            result[i] = 0;
             for (int j = 0; j < n; j++) {
                 result[i] += key[i][j] * block[j];
             }
-            result[i] %= MOD;
+            result[i] %= mod;  // Đảm bảo kết quả modulo
         }
         return result;
     }
 
-    private static int determinant(int[][] matrix) {
-        if (matrix.length == 1) {
+
+    private static int determinant(int[][] matrix, String selectedLanguage) {
+        int n = matrix.length;
+        if (n == 1) {
             return matrix[0][0];
         }
+
         int det = 0;
-        for (int i = 0; i < matrix.length; i++) {
-            int[][] minor = new int[matrix.length - 1][matrix.length - 1];
-            for (int j = 1; j < matrix.length; j++) {
-                for (int k = 0, col = 0; k < matrix.length; k++) {
-                    if (k == i) continue;
-                    minor[j - 1][col++] = matrix[j][k];
-                }
-            }
-            det += Math.pow(-1, i) * matrix[0][i] * determinant(minor);
-        }
-        return det;
-    }
-
-    private static int[][] adjoint(int[][] matrix) {
-        int n = matrix.length;
-        int[][] adjoint = new int[n][n];
         for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                int[][] minor = new int[n - 1][n - 1];
-                for (int row = 0, mRow = 0; row < n; row++) {
-                    if (row == i) continue;
-                    for (int col = 0, mCol = 0; col < n; col++) {
-                        if (col == j) continue;
-                        minor[mRow][mCol++] = matrix[row][col];
-                    }
-                    mRow++;
+            int[][] minor = new int[n - 1][n - 1];
+            for (int j = 1; j < n; j++) {
+                int colIndex = 0;
+                for (int k = 0; k < n; k++) {
+                    if (k == i) continue;
+                    minor[j - 1][colIndex++] = matrix[j][k];
                 }
-                adjoint[j][i] = (int) Math.pow(-1, i + j) * determinant(minor);
             }
+            det += Math.pow(-1, i) * matrix[0][i] * determinant(minor, selectedLanguage);
         }
-        return adjoint;
+
+        // Đảm bảo giá trị định thức không âm và modulo với getMod
+        det = det % getMod(selectedLanguage);  // Cập nhật modulo sau khi tính toán
+        return (det + getMod(selectedLanguage)) % getMod(selectedLanguage);
     }
 
-    public static void main(String[] args) {
-        // Ma trận khóa (ví dụ: ma trận 2x2)
-        int[][] keyMatrix = {
-                {3, 1},
-                {4,1}
-        };
 
-        // Văn bản cần mã hóa và giải mã
-        String plaintext = "HELL";
-        String ciphertext = "";
-        String decryptedText = "";
 
-        // Mã hóa văn bản
-        try {
-            ciphertext = HillCipherPanel.encryptText(plaintext, keyMatrix);
-            System.out.println("Văn bản mã hóa: " + ciphertext);
-        } catch (Exception e) {
-            System.out.println("Lỗi trong quá trình mã hóa: " + e.getMessage());
-        }
 
-        // Giải mã văn bản
-        try {
-            decryptedText = HillCipherPanel.decryptText(ciphertext, keyMatrix);
-            System.out.println("Văn bản giải mã: " + decryptedText);
-        } catch (Exception e) {
-            System.out.println("Lỗi trong quá trình giải mã: " + e.getMessage());
-        }
+    public static String encryptText(String plaintext, int[][] key, String selectedLanguage) {
+        return HillCipher.encryptText(plaintext, key, selectedLanguage);
+    }
+
+
+    public static String decryptText(String ciphertext, int[][] key, String selectedLanguage) {
+        return HillCipher.decryptText(ciphertext, key, selectedLanguage);
     }
 }
